@@ -1,11 +1,12 @@
-package com.dlsg.testalphanetworks.models;
+package com.dlsg.testalphanetworks.models.dao;
 
+import com.dlsg.testalphanetworks.models.dto.UserRequest;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,9 +17,6 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @org.hibernate.annotations.Type(type = "uuid-char")
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
     private String name;
     private String firstname;
@@ -26,5 +24,12 @@ public class User {
     private Set<Animal> animals;
 
 
-    public User(){}
+    public User(){
+        this.id = UUID.randomUUID();
+    }
+    public User(UserRequest userRequest){
+        this();
+        this.name = userRequest.getName();
+        this.firstname = userRequest.getFirstname();
+    }
 }

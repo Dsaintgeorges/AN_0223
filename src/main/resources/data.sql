@@ -30,7 +30,7 @@ INSERT INTO animal (id, name, type, user_id) VALUES
                                                  (UUID(), 'Luna', 'chat', (SELECT id FROM users WHERE name = 'Jane')),
                                                  (UUID(), 'Buddy', 'chien', (SELECT id FROM users WHERE name = 'John')),
                                                  (UUID(), 'Nemo II', 'poisson', (SELECT id FROM users WHERE name = 'Peter')),
-                                                 (UUID(), 'Simba', 'lion', (SELECT id FROM users WHERE name = 'Sarah')),
+                                                 (UUID(), 'Simba', 'chat', (SELECT id FROM users WHERE name = 'Sarah')),
                                                  (UUID(), 'Shadow', 'chien', (SELECT id FROM users WHERE name = 'Michael')),
                                                  (UUID(), 'Whiskers', 'chat', (SELECT id FROM users WHERE name = 'Jane')),
                                                  (UUID(), 'Max', 'chien', (SELECT id FROM users WHERE name = 'John')),

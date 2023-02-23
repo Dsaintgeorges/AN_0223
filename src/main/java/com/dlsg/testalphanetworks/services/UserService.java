@@ -1,12 +1,13 @@
 package com.dlsg.testalphanetworks.services;
 
-import com.dlsg.testalphanetworks.models.Animal;
-import com.dlsg.testalphanetworks.models.User;
+import com.dlsg.testalphanetworks.models.dao.Animal;
+import com.dlsg.testalphanetworks.models.dao.User;
 import com.dlsg.testalphanetworks.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -23,25 +24,17 @@ public class UserService {
         this.animalService = animalService;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+
+    public void createUser(User user) {
+        userRepository.save(user);
     }
 
     public Optional<User> getUserById(UUID userId) {
         return userRepository.findById(userId);
     }
 
-    @Transactional
-    public void createUser(User user) {
-        Set<Animal> animals = user.getAnimals();
-        user.setAnimals(null);
-
-        userRepository.save(user);
-
-        for (Animal animal : animals) {
-            animal.setUser(user);
-            animalService.createAnimal(animal);
-        }
+    public Page<User> getAllUsers(Pageable pageable){
+        return userRepository.findAll(pageable);
     }
 
     public void updateUser(User user) {

@@ -1,50 +1,74 @@
 package com.dlsg.testalphanetworks.controller;
 
-import com.dlsg.testalphanetworks.models.Animal;
-import com.dlsg.testalphanetworks.models.User;
-import com.dlsg.testalphanetworks.services.AnimalService;
+import com.dlsg.testalphanetworks.models.dao.User;
+import com.dlsg.testalphanetworks.models.dto.UserRequest;
 import com.dlsg.testalphanetworks.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 public class UserController {
 
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody UserRequest user) {
+        User userToCreate = new User(user);
+        userService.createUser(userToCreate);
+        return ResponseEntity.ok(userToCreate);
+    }
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<Page<User>> getAllUsers(@RequestParam("page") int page, @RequestParam("size") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return ResponseEntity.ok(userService.getAllUsers(pageable));
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid page or size parameter", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page or size parameter", e);
+        }
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
-        User user = userService.getUserById(UUID.fromString(userId))
+        try{
+            User user = userService.getUserById(UUID.fromString(userId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return ResponseEntity.ok(user);
-    }
+            return ResponseEntity.ok(user);
+        }catch(IllegalArgumentException e){
+            logger.error("Internal Server error", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", e);
+        }
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        userService.createUser(user);
-        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> updateUser(@PathVariable UUID userId, @RequestBody User user) {
-        user.setId(userId);
-        userService.updateUser(user);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> updateUser(@PathVariable UUID userId, @RequestBody UserRequest user) {
+        try{
+            User userToUpdate = userService.getUserById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            userToUpdate.setFirstname(user.getFirstname());
+            userToUpdate.setName(user.getName());
+            userService.updateUser(userToUpdate);
+            return ResponseEntity.noContent().build();
+        }catch (IllegalArgumentException e){
+            logger.error("Internal Server error", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", e);
+        }
     }
 
     @DeleteMapping("/{userId}")

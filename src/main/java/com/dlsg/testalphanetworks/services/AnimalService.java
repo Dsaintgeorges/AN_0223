@@ -1,8 +1,11 @@
 package com.dlsg.testalphanetworks.services;
 
-import com.dlsg.testalphanetworks.models.Animal;
-import com.dlsg.testalphanetworks.models.User;
+import com.dlsg.testalphanetworks.models.dao.Animal;
+import com.dlsg.testalphanetworks.models.dao.User;
 import com.dlsg.testalphanetworks.repository.AnimalRepository;
+import com.sun.istack.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +23,7 @@ public class AnimalService {
         this.animalRepository = animalRepository;
     }
 
-    public Animal createAnimal(Animal animal) {
+    public Animal createAnimal(@NotNull Animal animal) {
         return animalRepository.save(animal);
     }
 
@@ -36,20 +39,11 @@ public class AnimalService {
         return animalRepository.findById(animalId);
     }
 
-    public Iterable<Animal> getAllAnimals() {
-        return animalRepository.findAll();
+    public Page<Animal> getAllAnimals(Pageable pageable) {
+            return animalRepository.findAll(pageable);
     }
 
-    @Transactional
-    public void createAnimalsForUser(User user) {
-        Set<Animal> animals = user.getAnimals();
-        user.setAnimals(null);
 
-        for (Animal animal : animals) {
-            animal.setUser(user);
-            animalRepository.save(animal);
-        }
-    }
 }
 
 

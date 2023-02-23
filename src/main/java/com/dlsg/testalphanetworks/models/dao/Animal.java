@@ -1,6 +1,5 @@
-package com.dlsg.testalphanetworks.models;
+package com.dlsg.testalphanetworks.models.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,14 +15,21 @@ import java.util.UUID;
 @JsonIgnoreProperties("user")
 public class Animal {
     @Id
-    @org.hibernate.annotations.Type(type = "uuid-char")
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
     private String name;
     @Enumerated(EnumType.STRING)
-    private Type type;
-    @ManyToOne
-    @JoinColumn(name="user_id")
+    private AnimalType type;
+
+    @Basic(optional = false)
+    @Column(name = "user_id")
+    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id",referencedColumnName = "id",updatable = false, insertable = false)
     private User user;
+
+    public Animal(){
+        this.id = UUID.randomUUID();
+    }
+
+
 }
